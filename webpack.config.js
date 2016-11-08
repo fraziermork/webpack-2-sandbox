@@ -90,7 +90,6 @@ let rules = [
   {
     test:    /\.css$/, 
     include: `${__dirname}/app`,
-    // use: ExtractTextPlugin.extract('style', 'css'),
     use: ExtractTextPlugin.extract({
       loader:         'css-loader', 
       fallbackLoader: 'style-loader',
