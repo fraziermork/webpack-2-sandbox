@@ -17,9 +17,9 @@ let entry = {
   app: [
     PATHS.entry,
   ],
-  vendor: [
-    'angular',
-  ],
+  // vendor: [
+  //   'angular',
+  // ],
 };
 
 let output = {
@@ -29,67 +29,72 @@ let output = {
 
 let plugins = [
   new CleanPlugin('build'),
-  new webpack.DefinePlugin({
-    __DEVONLY__: production,
-  }),
-  new webpack.LoaderOptionsPlugin({
-    debug: true,
-    options: {
-      devSever: {
-        devtool:            'eval-source-map', 
-        contentBase:        PATHS.build, 
-        historyApiFallback: true, 
-        progress:           true, 
-        stats:              'errors-only',
-      },
-      eslint: {
-        failOnError: true,
-      },
-    },
+  // new webpack.DefinePlugin({
+  //   __DEVONLY__: production,
+  // }),
+  // new webpack.LoaderOptionsPlugin({
+  //   debug: true,
+  //   options: {
+  //     devSever: {
+  //       devtool:            'eval-source-map', 
+  //       contentBase:        PATHS.build, 
+  //       historyApiFallback: true, 
+  //       progress:           true, 
+  //       stats:              'errors-only',
+  //     },
+  //   },
+  // }),
+  new ExtractTextPlugin({
+    filename:  '[name].bundle.css', 
+    allChunks: true, 
   }),
   new HtmlWebpackPlugin({
     template: `${__dirname}/app/main/index.html`,
   }),
-  // new ExtractTextPlugin({
-  //   filename: 'bundle.css',
-  //   allChunks: true, 
-  // }),
-  
 ];
 
 
 let rules = [
   
   // EXAMPLE: preLoader equivalent for webpack 2 
-  {
-    test:    /\.js$/, 
-    include: './app',
-    // This is where pre / post is set. 
-    enforce: 'pre',
-    
-    // This is the same as loader/loaders now 
-    use: [
-      {
-        loader: 'eslint-loader',
-        options: {
-          failOnError:   true,
-          failOnWarning: true, 
-          emitError:     true, 
-          emitWarning:   true, 
-        },
-      },
-    ],
-  },
+  // {
+  //   test:    /\.js$/, 
+  //   include: `${__dirname}/app`,
+  //   // This is where pre / post is set. 
+  //   enforce: 'pre',
+  //   
+  //   // This is the same as loader/loaders now 
+  //   use: [
+  //     {
+  //       loader: 'eslint-loader',
+  //       options: {
+  //         failOnError:   true,
+  //         failOnWarning: true, 
+  //         emitError:     true, 
+  //         emitWarning:   true, 
+  //       },
+  //     },
+  //   ],
+  // },
   
-  // EXAMPLE: normal loader 
+  // EXAMPLE: normal loaders 
   {
     test:    /\.js$/, 
-    include: './app',
+    include: `${__dirname}/app`,
     use: [
       {
         loader: 'babel',
       },
     ],
+  },
+  {
+    test:    /\.css$/, 
+    include: `${__dirname}/app`,
+    // use: ExtractTextPlugin.extract('style', 'css'),
+    use: ExtractTextPlugin.extract({
+      loader:         'css-loader', 
+      fallbackLoader: 'style-loader',
+    }),
   },
 ];
 
@@ -98,7 +103,7 @@ let webpackModule = {
 };
 
 module.exports = {
-  // context: `${__dirname}/app`,
+  context: `${__dirname}/app`,
   plugins,
   entry, 
   output, 

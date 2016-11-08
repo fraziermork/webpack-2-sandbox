@@ -20,7 +20,7 @@
     ], 
     "comma-dangle": [
       1, 
-      "always"
+      "always-multiline"
     ]
   },
   "env": {
