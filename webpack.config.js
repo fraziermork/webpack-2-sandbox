@@ -3,8 +3,8 @@
 const webpack     = require('webpack');
 const CleanPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 // const autoprefixer      = require('autoprefixer');
-// const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const production = process.env.NODE_ENV === 'production';
 
@@ -42,23 +42,59 @@ let plugins = [
         progress:           true, 
         stats:              'errors-only',
       },
+      eslint: {
+        failOnError: true,
+      },
     },
   }),
   new HtmlWebpackPlugin({
     template: `${__dirname}/app/main/index.html`,
   }),
+  // new ExtractTextPlugin({
+  //   filename: 'bundle.css',
+  //   allChunks: true, 
+  // }),
+  
 ];
 
-let loaders = [
+
+let rules = [
+  
+  // EXAMPLE: preLoader equivalent for webpack 2 
   {
-    test:    /\.js/, 
-    loader:  'babel', 
+    test:    /\.js$/, 
     include: './app',
+    // This is where pre / post is set. 
+    enforce: 'pre',
+    
+    // This is the same as loader/loaders now 
+    use: [
+      {
+        loader: 'eslint-loader',
+        options: {
+          failOnError:   true,
+          failOnWarning: true, 
+          emitError:     true, 
+          emitWarning:   true, 
+        },
+      },
+    ],
+  },
+  
+  // EXAMPLE: normal loader 
+  {
+    test:    /\.js$/, 
+    include: './app',
+    use: [
+      {
+        loader: 'babel',
+      },
+    ],
   },
 ];
 
 let webpackModule = {
-  loaders, 
+  rules,
 };
 
 module.exports = {
