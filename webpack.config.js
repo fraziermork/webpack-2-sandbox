@@ -85,7 +85,13 @@ let plugins = [
 ];
 
 let rules = [
-  
+  {
+    test: /index\.js$/, 
+    loader: {
+      loader: 'baggage', 
+      query: '[dir].scss',
+    },
+  }, 
   // EXAMPLE: preLoader equivalent for webpack 2 
   {
     test:    /\.js$/, 
