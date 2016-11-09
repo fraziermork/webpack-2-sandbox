@@ -1,29 +1,30 @@
 'use strict';
 
-const webpack     = require('webpack');
-const CleanPlugin = require('clean-webpack-plugin');
+const webpack           = require('webpack');
+const CleanPlugin       = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-// const autoprefixer      = require('autoprefixer');
+const autoprefixer      = require('autoprefixer');
 
 const production = process.env.NODE_ENV === 'production';
 
 const PATHS = {
-  entry: `${__dirname}/app/entry`, 
-  build: `${__dirname}/build`,
+  entry:   `${__dirname}/app/entry`, 
+  output:  `${__dirname}/build`,
+  context: `${__dirname}/app`,
 };
 
 let entry = {
   app: [
     PATHS.entry,
   ],
-  // vendor: [
-  //   'angular',
-  // ],
+  vendor: [
+    'angular',
+  ],
 };
 
 let output = {
-  path:     PATHS.build,
+  path:     PATHS.output,
   filename: '[name].bundle.js',
 };
 
@@ -33,7 +34,7 @@ let plugins = [
     __DEVONLY__: production,
   }),
   new webpack.LoaderOptionsPlugin({
-    debug: true,
+    debug: !production,
     options: {
       devSever: {
         devtool:            'eval-source-map', 
@@ -42,6 +43,36 @@ let plugins = [
         progress:           true, 
         stats:              'errors-only',
       },
+    },
+  }),
+  new webpack.LoaderOptionsPlugin({
+    test:  /\.scss$/,
+    debug: !production, 
+    options: {
+      postcss: [
+        autoprefixer({
+          browsers: [
+            'Android 2.3',
+            'Android >= 4',
+            'Chrome >= 20',
+            'Firefox >= 24',
+            'Explorer >= 8',
+            'iOS >= 6',
+            'Opera >= 12',
+            'Safari >= 6',
+          ],
+        }),
+      ],
+      sass: {
+        sourceMap: true,
+      },
+      
+      // Fix for 'Cannot resolve property path of undefined' b/c of sass loader
+      // See https://github.com/jtangelder/sass-loader/issues/298
+      output:  {
+        path: PATHS.output,
+      }, 
+      context: PATHS.context,
     },
   }),
   new ExtractTextPlugin({
@@ -53,13 +84,13 @@ let plugins = [
   }),
 ];
 
-
 let rules = [
   
   // EXAMPLE: preLoader equivalent for webpack 2 
   {
     test:    /\.js$/, 
-    include: `${__dirname}/app`,
+    include: PATHS.context,
+    
     // This is where pre / post is set. 
     enforce: 'pre',
     
@@ -80,7 +111,7 @@ let rules = [
   // EXAMPLE: normal loaders 
   {
     test:    /\.js$/, 
-    include: `${__dirname}/app`,
+    include: PATHS.context,
     use: [
       {
         loader: 'babel',
@@ -89,7 +120,9 @@ let rules = [
   },
   {
     test:    /\.css$/, 
-    include: `${__dirname}/app`,
+    // include: PATHS.context,
+    
+    // Must use property 'loader'--breaks with 'use' instead
     loader: ExtractTextPlugin.extract({
       loader:         { loader: 'css' },
       fallbackLoader: { loader: 'style' },
@@ -97,13 +130,15 @@ let rules = [
   },
   {
     test:    /\.scss$/, 
-    include: `${__dirname}/app`,
+    // include: PATHS.context,
     loader: ExtractTextPlugin.extract({
-      loader:         [
+      loader: [
         { loader: 'css' },
+        { loader: 'postcss' }, 
+        { loader: 'resolve-url' }, 
         { 
           loader: 'sass', 
-          options: {
+          query: {
             sourceMap: true, 
           },
         },
@@ -111,14 +146,25 @@ let rules = [
       fallbackLoader: { loader: 'style' },
     }),
   },
+  {
+    test:    /\.(ttf|eot|svg|woff(2)?)(\?v=\d+\.\d+\.\d+)?$/,
+    // Cannot have an include like this because trying to load files from node_modules for fontawesome
+    // include: PATHS.context, 
+    use: {
+      loader: 'url', 
+      query: {
+        limit: 10000,
+      },
+    },
+  }, 
 ];
 
 let webpackModule = {
   rules,
 };
 
-module.exports = {
-  context: `${__dirname}/app`,
+let configuration = {
+  context: PATHS.context,
   plugins,
   entry, 
   output, 
@@ -128,3 +174,5 @@ module.exports = {
     errorDetails: true, 
   },
 };
+
+module.exports = configuration;
