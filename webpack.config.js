@@ -29,21 +29,21 @@ let output = {
 
 let plugins = [
   new CleanPlugin('build'),
-  // new webpack.DefinePlugin({
-  //   __DEVONLY__: production,
-  // }),
-  // new webpack.LoaderOptionsPlugin({
-  //   debug: true,
-  //   options: {
-  //     devSever: {
-  //       devtool:            'eval-source-map', 
-  //       contentBase:        PATHS.build, 
-  //       historyApiFallback: true, 
-  //       progress:           true, 
-  //       stats:              'errors-only',
-  //     },
-  //   },
-  // }),
+  new webpack.DefinePlugin({
+    __DEVONLY__: production,
+  }),
+  new webpack.LoaderOptionsPlugin({
+    debug: true,
+    options: {
+      devSever: {
+        devtool:            'eval-source-map', 
+        contentBase:        PATHS.build, 
+        historyApiFallback: true, 
+        progress:           true, 
+        stats:              'errors-only',
+      },
+    },
+  }),
   new ExtractTextPlugin({
     filename:  '[name].bundle.css', 
     allChunks: true, 
@@ -57,25 +57,25 @@ let plugins = [
 let rules = [
   
   // EXAMPLE: preLoader equivalent for webpack 2 
-  // {
-  //   test:    /\.js$/, 
-  //   include: `${__dirname}/app`,
-  //   // This is where pre / post is set. 
-  //   enforce: 'pre',
-  //   
-  //   // This is the same as loader/loaders now 
-  //   use: [
-  //     {
-  //       loader: 'eslint-loader',
-  //       options: {
-  //         failOnError:   true,
-  //         failOnWarning: true, 
-  //         emitError:     true, 
-  //         emitWarning:   true, 
-  //       },
-  //     },
-  //   ],
-  // },
+  {
+    test:    /\.js$/, 
+    include: `${__dirname}/app`,
+    // This is where pre / post is set. 
+    enforce: 'pre',
+    
+    // This is the same as loader/loaders now 
+    use: [
+      {
+        loader: 'eslint-loader',
+        options: {
+          failOnError:   true,
+          failOnWarning: true, 
+          emitError:     true, 
+          emitWarning:   true, 
+        },
+      },
+    ],
+  },
   
   // EXAMPLE: normal loaders 
   {
@@ -90,9 +90,25 @@ let rules = [
   {
     test:    /\.css$/, 
     include: `${__dirname}/app`,
-    use: ExtractTextPlugin.extract({
-      loader:         'css-loader', 
-      fallbackLoader: 'style-loader',
+    loader: ExtractTextPlugin.extract({
+      loader:         { loader: 'css' },
+      fallbackLoader: { loader: 'style' },
+    }),
+  },
+  {
+    test:    /\.scss$/, 
+    include: `${__dirname}/app`,
+    loader: ExtractTextPlugin.extract({
+      loader:         [
+        { loader: 'css' },
+        { 
+          loader: 'sass', 
+          options: {
+            sourceMap: true, 
+          },
+        },
+      ], 
+      fallbackLoader: { loader: 'style' },
     }),
   },
 ];

@@ -1,3 +1,3 @@
 // import '!file?name=[name].[ext]!./main/index.html';
-import './main/main.css';
+// require('./main/main.scss');
 import './main';
