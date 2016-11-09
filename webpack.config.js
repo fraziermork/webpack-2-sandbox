@@ -16,6 +16,7 @@ const PATHS = {
 
 let entry = {
   app: [
+    'bootstrap-loader/extractStyles',
     PATHS.entry,
   ],
   vendor: [
@@ -83,6 +84,23 @@ let plugins = [
     template: `${__dirname}/app/main/index.html`,
   }),
 ];
+
+if (production) {
+  plugins = plugins.concat([
+    new webpack.optimize.CommonsChunkPlugin({
+      name:      'vendor',
+      children:  true,
+      minChunks: 2,
+    }),
+    new webpack.optimize.UglifyJsPlugin({
+      mangle: true,
+      compress: {
+        warnings: false,
+      },
+    }), 
+    new webpack.optimize.DedupePlugin(),
+  ]);
+}
 
 let rules = [
   {
@@ -154,8 +172,8 @@ let rules = [
   },
   {
     test:    /\.(ttf|eot|svg|woff(2)?)(\?v=\d+\.\d+\.\d+)?$/,
-    // Cannot have an include like this because trying to load files from node_modules for fontawesome
-    // include: PATHS.context, 
+    
+    // Cannot have an include like PATHS.context because trying to load files from node_modules for fontawesome
     use: {
       loader: 'url', 
       query: {

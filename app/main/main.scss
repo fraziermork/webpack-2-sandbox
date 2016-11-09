@@ -1,9 +1,11 @@
 @import '~font-awesome/scss/font-awesome';
+@import '~bootstrap-sass/assets/stylesheets/bootstrap/_variables';
 
 html {
   background-color: red;
   
   div: {
     color: blue;
+    
   }
 }
